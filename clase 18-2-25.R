@@ -1,9 +1,16 @@
 rm(list=ls())
 library(dplyr)
 library(tm) #minería de texto 
-library(udpipe) #etiquetado
+library(udpipe) #etiquetado #########INVESTIGAR
 library(hunspell) #ortografía
 library(syuzhet) #análisis de sentimiento
+library(stringr)
+library(pdftools)
+library(ggplot2)
+library(wordcloud2)
+library(ggworldcloud)
+library(igraph)
+library(visNetwork)
 
 #configuración para caracteres e idioma
 options(stringsAsFactors=FALSE)
