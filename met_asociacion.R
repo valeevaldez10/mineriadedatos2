@@ -32,6 +32,9 @@ format(card*card,scientific = F)
 ##PASOS
 
 #procesamiento de datos
+#install.packages("arules")
+#install.packages("arulesViz")
+#install.packages("readxl")
 library(arules)   #algoritmos
 library(arulesViz)   #gráficos
 library(readxl)  #excel
@@ -46,6 +49,31 @@ list_f<-list(
 bdf<-as(list_f,"transactions") #se convierten en transacciones
 class(bdf)
 bdf
+
+#MATRIZ
+aux<-read_excel("",1,"B1:H6")
+auxm<-as.matrix(aux)
+row.names(auxm)<-paste0("T",1:5)
+bdf2<-as(auxm,"transactions")
+bdf2
+
+#DATAFRAME
+aux<-read_excel(,2)
+aux$TRANSACCION<-paste0("T",aux$TRANSACCION)
+aux
+bdf3<-as(split(aux$ITEM,aux$TRANSACCION),"transactions")
+bdf3
+
+data("Groceries") #base de ejemplo
+dfg<-Groceries
+dfg
+
+data("Adult") #base de ejemplo - equivalente a la encuesta de hogares
+dfg<-Adult
+dfg
+
+
+#clase 11/3/2025
 
 
 
