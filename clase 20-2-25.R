@@ -83,7 +83,7 @@ aux1<-tdm_pdf %>% as.matrix() %>% rowSums() %>%
 aux1$words<-rownames(aux1)
 wordcloud2(aux1[,c(2,1)])
 
-#CLASE 25/02/2024
+##########CLASE 25/02/2024
 ggplot(aux,aes(label=words,size=freq))+
   geom_text_wordcloud(col="darkblue")+
   scale_size_area(max_size = 15)+
