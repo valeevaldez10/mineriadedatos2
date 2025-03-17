@@ -139,6 +139,8 @@ auxsc<-auxsc %>% filter(words!="economía")
 wordcloud2(auxsc %>% select(words,freq),
            color =ifelse(auxsc$fear==1,"red","black"))
 
+
+
 ### Análisis diagnóstico: asociación 
 #palabras que participan con la palabra arce, tienen correlación y un valor de corr min
 findAssocs(tdm_V,"arce",0.2) 
@@ -146,12 +148,14 @@ findAssocs(tdm_V,"ministro",0.1)
 #se puede hacer un análisis de sentimiento con las palabras que se correlacionan
 #con ministro en mínimo un 10%
 
-#Análisis diagnóstico: redes
+
+
+
+####Análisis diagnóstico: redes
 mxd<-as.matrix(dtm_V) %*% t(as.matrix(dtm_V))
 mxt<-as.matrix(tdm_V) %*% t(as.matrix(tdm_V))
 dim(mxd)
 dim(mxt)
-
 dim(tdm_V)
 #se lo reduce porque ocupa mucha memoria
 tdm_reducido <- removeSparseTerms(tdm_V,sparse = 0.99) #remueve palabras que no tienen mucha participación en el 99%
@@ -170,7 +174,12 @@ grupos<-cluster_label_prop(g)
 nodes$value<-prop.table(nodes$degree)*1000
 nodes$group<-grupos$membership
 visNetwork(nodes,edges)
+
+##con esto vemos el análisis de redes
 visNetwork(nodes,edges) %>% visPhysics(enabled = FALSE)
+
+
+
 ### Análisis diagnóstico: agrupamiento
 #según esto podemos ver que tan distintos son los documentos entre ellos
 #esta clasificación se da dadas las palabras que se están usando
@@ -178,6 +187,12 @@ kmeans(as.matrix(dtm_pdf),3)
 res<-kmeans(as.matrix(dtm_pdf),3)
 data.frame(res$cluster)
 
+kmeans(as.matrix(dtm_V),3)
+res<-kmeans(as.matrix(dtm_V),3)
+a<-data.frame(res$cluster)
+b<-a %>% table
+barplot(b)
+plot(res$cluster)
 
 
 
