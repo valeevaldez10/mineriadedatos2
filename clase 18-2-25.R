@@ -21,6 +21,7 @@ load("datasets/larazon.RData")
 #Ortografía
 list_dictionaries()
 texto<-"hola pequeña vandida"
+
 aux<-hunspell(texto,dict = "es_ES")
 hunspell_suggest(aux[[1]],dict = "es_ES") #nos dice cuales pueden ser posibles correcciones
 #caso archivo la razon

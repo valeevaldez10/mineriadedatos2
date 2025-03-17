@@ -19,10 +19,12 @@ bd$titular %>% tolower() %>%
 titular<-bd$titular %>% tolower()
 # correcciones / etiquetado
 titular<-titular %>% 
-  str_replace("potosi","potosí")
+  str_replace("potosi","potosí") #reemplaza potosi por potosí
 
 titular %>% tolower() %>% 
   str_detect("potosi") %>% table()
+
+
 # Cambios en ortografía y etiquetado
 pp<-c("la paz", 
       "santa cruz", 
@@ -40,3 +42,4 @@ for(i in 1:length(pp)){
   titular<-titular %>% 
     str_replace(pp[i],cc[i])
 }
+titular %>% str_detect("santa cruz") %>% table

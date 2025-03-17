@@ -172,7 +172,7 @@ Una ruta sugerida:
     + Prefijos y sufijos
   - Armado del DTM O TDM
   
-```{r eval=FALSE, include=FALSE}
+```{r echo=FALSE}
 rm(list=ls())
 #Configuración básica para los caracteres e idioma
 options(stringsAsFactors = FALSE)
@@ -192,7 +192,7 @@ eco1<-str_to_upper(eco)
 ## Puntuación
 eco1<-removePunctuation(eco1)
 ## Espacios
-stripWhitespace("  hola      a   ")
+stripWhitespace("  hola      a   ") #solo deja un espacio en blanco
 eco1<-stripWhitespace(eco1)
 ## Números
 eco1<-removeNumbers(eco1)
@@ -204,7 +204,7 @@ eco1<-removeWords(eco1, toupper(stopwords("es")))
 eco1
 
 sum(nchar(eco))
-sum(nchar(eco1))
+sum(nchar(eco1)) #disminuye
 
 ## Prefijos y sufijos
 stemDocument("hola a todos y todas","spanish")
@@ -223,11 +223,22 @@ library(hunspell)
 texto <- "Esto es un tezto con alguos errores de ortografa en las palabras."
 aux<-hunspell(texto, dict =  "es_ES")
 hunspell_suggest(aux[[1]], dict =  "es_ES")
+
+#Ortografía
+texto<-"Esto es un tezto con algunos errores de ortografia"
+list_dictionaries()
+aux<-hunspell(texto,dict =  "es_ES")
+hunspell_suggest(aux[[1]], dict =  "es_ES")
+bd$titular
+hunspell(bd$titular[1:5] , dict =  "es_ES")
+clarazon <- VCorpus(VectorSource(bd$titular))
+clarazon[[20]]$content
+
 ```
 
 ### Lematización y etiquetado
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 library(udpipe)
 ud_model <- udpipe_download_model(language = "spanish")
 ud_model <- udpipe_load_model(ud_model$file_model)
@@ -238,8 +249,8 @@ texto2 <-"El coche es rápido. El automóvil tiene gran velocidad. El carro es v
 # Procesamiento del texto
 resultado1 <- udpipe_annotate(ud_model, x = texto1)
 resultado2 <- udpipe_annotate(ud_model, x = texto2)
-resultado1 <- as.data.frame(resultado)
-resultado2 <- as.data.frame(resultado)
+resultado1 <- as.data.frame(resultado1)
+resultado2 <- as.data.frame(resultado2)
 ```
    
 ### Importación, corpus, TDM, DTM
