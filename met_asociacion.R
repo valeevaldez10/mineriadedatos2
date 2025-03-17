@@ -38,6 +38,8 @@ format(card*card,scientific = F)
 library(arules)   #algoritmos
 library(arulesViz)   #gráficos
 library(readxl)  #excel
+
+##leer transacciones a partir de
 #LISTA
 list_f<-list(
   T1=c("vitaminas","antigripal","paracetamol"),
@@ -51,14 +53,14 @@ class(bdf)
 bdf
 
 #MATRIZ
-aux<-read_excel("",1,"B1:H6")
+aux<-read_excel("datasets/ejemplo_asoc.xlsx",1,"B1:H6")
 auxm<-as.matrix(aux)
 row.names(auxm)<-paste0("T",1:5)
 bdf2<-as(auxm,"transactions")
 bdf2
 
 #DATAFRAME
-aux<-read_excel(,2)
+aux<-read_excel("datasets/ejemplo_asoc.xlsx",2) #lee la hoja 2
 aux$TRANSACCION<-paste0("T",aux$TRANSACCION)
 aux
 bdf3<-as(split(aux$ITEM,aux$TRANSACCION),"transactions")
@@ -66,10 +68,12 @@ bdf3
 
 data("Groceries") #base de ejemplo
 dfg<-Groceries
+class(dfg)
 dfg
 
 data("Adult") #base de ejemplo - equivalente a la encuesta de hogares
 dfa<-Adult
+class(dfa)
 dfa
 
 
@@ -81,17 +85,24 @@ LIST(bdf)
 LIST(bdf)[5]
 LIST(dfg)[1500]
 LIST(dfa)[90]
+
+
 # size df --> nos ayuda a obtener la dimensión de items por cada 
 #transacción en cada uno de estos conjuntos de transacciones
 size(bdf)
 size(dfg)
 summary(size(dfg))
 hist(size(dfg))
-bar(size(dfg))
+barplot(size(dfg))
 size(dfa) #proviene de una encuesta donde se han creado 13 categorías
+#por ejemplo [512] solo tiene 12
+LIST(dfa)[512]
+
+
 # summary df
 # la densidad que muestra el comando summary que en bdf es de 0.3714
 # representa el # de 1/# de frecuencias posibles en la matriz (5*7=35)
+#en el caso : 13/35
 # si es un valor bajo significa algo malo porque hay pocas compras por 
 #transacción
 # también puede darnos una idea de que tan probable es encontrar
