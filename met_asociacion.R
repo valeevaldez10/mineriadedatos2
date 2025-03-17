@@ -38,6 +38,7 @@ format(card*card,scientific = F)
 library(arules)   #algoritmos
 library(arulesViz)   #gráficos
 library(readxl)  #excel
+library(dplyr)
 
 ##leer transacciones a partir de
 #LISTA
@@ -128,12 +129,12 @@ image(dfg) #no se entiende
 image(dfg[101:200])
 image(dfa[1:100])
 image(dfg[sample(1:9835,100)])
-image(dfg[sample(1:48842,100)])
+image(dfa[sample(1:48842,100)])
 
 itemFrequencyPlot(bdf)
 itemFrequencyPlot(dfg)
 itemFrequencyPlot(dfa)
-itemFrequencyPlot(dfg,topN=15) #muestra los 15 más frecuentes
+itemFrequencyPlot(dfg,topN=10) #muestra los 15 más frecuentes
 itemFrequencyPlot(dfa,topN=10) #muestra los 10 más frecuentes
 
 #ALGORITMO APRIORI
@@ -144,6 +145,7 @@ regla0<-apriori(
 )
 summary(regla0)
 ## Ha encontrado dos reglas de asociación
+## de tamaño dos
 
 inspect(regla0)
 # paracetamol implica el antigripal
@@ -205,10 +207,15 @@ inspect(sort(agua_r,by="lift"))
 #figuras
 plot(regla4)
 plot(regla4,interactive=T)
-plot(soda_r,method="graph") #este gráfico es más útil cuando le damos un item específico
+
+##GRAFO
+#este gráfico es más útil cuando le damos un item específico
+#datos alrededor de un item
+plot(soda_r,method="graph") 
 plot(regla4,method="graph")
 
 ruleExplorer(regla4)
+ruleExplorer(soda_r)
 
 #el ECLAT es lo mismo solo que más eficiente en tiempo
 me1<-eclat(dfg,parameter=list(supp=0.01,minlen=2))
@@ -218,7 +225,10 @@ inspect(sort(me1,by="support")[1:2]) #devuelve los items más frecuentes
 
 plot(me1)
 me1r<-ruleInduction(me1,dfg,confidence=0.5)
+summary(me1r)
+inspect(me1r)
 plot(me1r)
+write(me1r, file="datasets/eclat.csv")
 
 
 

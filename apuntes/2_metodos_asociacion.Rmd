@@ -153,4 +153,150 @@ Pasos:
 3. A partir del punto de referencia (partida) se calculan las conjuntos de items adicionando un item (+1) que contenga al conjunto de item de partida. 
 4. Se vuelve al paso 2 hasta que no existan mas conjuntos de items que cumplan el soporte mínimo. Cuando pase esto se salta al siguiente conjunto de items del inicio.
 
+![](/_fig/apriori_eclat.PNG)
+
+## Ejemplo en R
+
+```{r}
+rm(list = ls())
+library(arules)# algoritmos 
+library(arulesViz)# gráfica
+library(readxl)# excel 
+##############
+#Pre procesamiento
+##############
+#LISTA
+list_f<-list(
+  T1=c("vitaminas", "antigripal", "paracetamol"),
+  T2=c("ibuprofeno", "complejoB", "aspirina"),
+  T3=c("complejoB", "vitaminas"),
+  T4=c("antigripal", "paracetamol", "aspirina"),
+  T5=c("jarabe para la tos", "vitaminas")
+)
+bdf<-as(list_f, "transactions")
+class(bdf)
+bdf
+#MATRIZ
+aux<-read_excel("_data/ejemplo_asoc.xlsx",1,"B1:H6")
+auxm<-as.matrix(aux)
+row.names(auxm)<-paste0("T",1:5)
+bdf2<-as(auxm, "transactions")
+bdf2
+#DATA FRAME
+aux<-read_excel(
+  "_data/ejemplo_asoc.xlsx",2
+  )
+aux$TRANSACCION<-paste0("T",aux$TRANSACCION)
+aux
+bdf3<-as(split(aux$ITEM, aux$TRANSACCION),"transactions")
+bdf3
+
+data("Groceries")# base de ejemplo de una tienda
+dfg<-Groceries
+dfg
+
+data("Adult")
+dfa<-Adult
+dfa
+#############
+#Exploración
+#############
+# LIST(df)# mostrar las transacciones
+LIST(bdf)[5]
+LIST(dfg)[1500]
+LIST(dfa)[90]
+#  size(df)
+size(bdf)
+size(dfg)
+size(dfa)
+# summary(df)
+summary(bdf)
+summary(dfg)
+summary(dfa)
+# inspect(df)
+inspect(bdf)
+inspect(dfg[1:4])
+inspect(dfa[1:4])
+###gráfica
+# image(df)
+image(bdf)
+image(dfg[101:200])
+image(dfa[1:100])
+image(dfg[sample(1:9835,100)])
+image(dfa[sample(1:48842,100)])
+# itemFrequencyPlot(df)
+itemFrequencyPlot(bdf)
+itemFrequencyPlot(dfg)
+itemFrequencyPlot(dfa)
+itemFrequencyPlot(dfg,topN=10)
+itemFrequencyPlot(dfa,topN=10)
+##########
+#Algoritmo apriori
+##########
+regla0<-apriori(bdf,parameter = list(supp=0.3,conf=0.7))
+summary(regla0)
+inspect(regla0)
+
+regla1<-apriori(dfg,parameter = list(supp=0.001,conf=0.9))
+summary(regla1)
+inspect(sort(regla1,by="lift")[1:10])
+
+soda_r=apriori(dfg, parameter=list(supp=0.001,conf =
+0.1, minlen=2), appearance = list(default="rhs",lhs="soda"))
+
+summary(soda_r)
+inspect(sort(soda_r,by="lift"))
+
+#botella de agua
+agua_r=apriori(dfg, parameter=list(supp=0.001,conf =
+0.1, minlen=2), appearance = list(default="rhs",lhs="bottled water"))
+
+summary(agua_r)
+inspect(sort(agua_r,by="lift"))
+#figuras
+plot(regla1)
+plot(regla1,interactive = T)
+plot(soda_r,method = "graph")
+ruleExplorer(regla0)
+##########
+#eclat
+###########
+me1<-eclat(dfg, parameter = list(supp=0.01, minlen=1))
+# reporte
+summary(me1)
+inspect(sort(me1,by="support"
+             )[1:2])
+plot(me1)
+
+me1r<-ruleInduction(me1, dfg, confidence=0.5)
+plot(me1r)
+#guardando las reglas
+write(me1, file="_data/eclat.csv")
+```
+
+## Práctica
+
+1. Convierta las siguientes bases de datos a un formato de transacciones
+  - Panadería
+  - Comercio electrónico
+2. Utilice la base de datos de Publicaciones Economía del tema de Minería de datos y genere una base de datos de transacciones (realice la limpieza que considere necesaria)
+3. Utilice la base de datos de las encuestas a hogares para personas de 18 años o más y genere una base de datos similar a la de data("Adult") incluyendo las siguientes variables (puede omitir valores perdidos una vez seleccionadas las variables):
+  - Incidencia de pobreza (p0)
+  - Deciles de ingreso laboral (transformación sobre ylab)
+  - Nivel educativo (niv_edu)
+  - Autoidentificación indígena (s01a_09)
+  - Migración reciente (s01b_11a)
+  - Grupo Ocupacional ocupación principal (cob_op)
+  - Consumió bebidas alcohólicas (s02d_36)
+4. Sobre las bases de datos anteriores aplique el algoritmo apriori y presente las 5 principales reglas de asociación (lift), tome como parámetros:
+  - $Supp=0.1$, $Confianza=0.7$
+  - $Supp=0.01$, $Confianza=0.7$
+  - $Supp=0.001$, $Confianza=0.8$
+  - $Supp=0.005$, $Confianza=0.8$
+5. Sobre las bases de datos anteriores aplique el algoritmo eclat y presente las 5 principales grupos de items, tome como parámetros:
+  - $Supp=0.1$, $minlen=2$
+  - $Supp=0.01$, $minlen=2$
+  - $Supp=0.001$, $minlen=2$
+  - $Supp=0.005$, $minlen=2$
+6. Paras las bases de datos de los ejercicios 2 y 3 elija un item de interés para el LHS y realice la búsqueda de las reglas de asociación con el lift más alto en el algoritmo apriori, defina sus propios parámetros y presente el plot de asociación.
 
