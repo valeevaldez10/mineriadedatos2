@@ -182,6 +182,13 @@ inspect(regla4)
 ##22 59 13
 #hay 22 reglas que involucran 3 items, 59 que involucran 4 items,...
 
+regla5<-apriori(dfa,parameter=
+                  list(supp=0.2,conf=0.7))
+summary(regla5)
+inspect(regla5)
+
+
+
 inspect(sort(regla4,by="lift")[1:10]) #muestra las 10 reglas con los lifts más altos
 
 # si queremos analizar las reglas respecto a un item en determinado
