@@ -30,7 +30,7 @@ dfa$InvoiceNo <- order(dfa$InvoiceNo,decreasing = FALSE)
 dfa$InvoiceNo<-paste0("T",dfa$InvoiceNo)
 bda<-as(split(dfa$Description,dfa$InvoiceNo),"transactions")
 bda
-
+LIST(bda)[2]
 
 #531040 filas
 #dfc$InvoiceNo <- order(dfc$InvoiceNo,decreasing = FALSE)
