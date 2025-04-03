@@ -1,7 +1,9 @@
 library(dplyr)
 library(haven)
+#install.packages("labelled")
 library(labelled)
 library(ggplot2)
+#install.packages("GGally")
 library(GGally)
 
 load("datasets/eh23.RData")
@@ -44,3 +46,71 @@ bd[9223,c("ylab","aestudio")]
 m3<-lm(log(ylab)~to_factor(aestudio),data=bd)
 summary(m3)
 plot(m3)
+
+#modelo con todas las variables independientes
+m4<-lm(log(ylab)~ .,data=bd) 
+summary(m4)
+
+##########
+#install.packages("car")
+library(car)
+#install.packages("mixlm")
+library(mixlm)
+
+residualPlots(m4)  #H0: NO se requiere X^2
+#se observa que es necesario para aestudio,s01a_03,tothrs, ynolab
+outlierTest(m4)
+
+
+aux<-outlierTest(m4)
+aux<-names(aux$rstudent)
+aux
+#explorando si en verdad son datos atípicos
+
+#para ver los datos
+bd %>% slice(as.numeric(aux)) %>% View()
+
+bd1<-bd %>% slice(-as.numeric(aux))
+bd1<-bd1 %>% mutate(aes2=aestudio^2,
+                    aestudio=as.factor(aestudio),
+                    edad2=s01a_03^2,
+                    th2=tothrs^2,
+                    logynl=log(ynolab+10)) %>% select(-ynolab)
+influenceIndexPlot(m4,vars="Cook")
+
+bd[c(6314,13395), ] %>% View()
+
+m5<-lm(log(ylab)~.,data=bd1)
+summary(m5)
+m6<-step(m5)
+summary(m6)
+#no elimina las variables de tipo factor que no aportan al modelo, toma toda la variable
+m7<-backward(m5)
+summary(m7)
+#sucede el mismo problema
+
+#lo mejor es transformar a dummies por nuestra cuenta
+install.packages("fastDummies")
+library(fastDummies)
+bd2<-dummy_cols(bd1,remove_first_dummy=T,remove_selected_columns = T)
+bd2
+
+md1<-lm(log(ylab)~.,data=bd2)
+md2<-step(md1)
+md3<-backward(md1,alpha=0.05)
+summary(md2)
+summary(md3)
+
+########### paso 5
+ee<-residuals(m5)
+hist(ee)
+install.packages("nortest")
+library(nortest)  #H0: Existe normalidad
+ad.test(ee)
+lillie.test(ee)
+
+#tendría que parecerse a una normal estándar, pero como se
+#observa no parece mucha diferencia, quizás sobreestimara
+#los datos
+plot(density(scale(ee)))
+curve(dnorm,add=T,col="red")
