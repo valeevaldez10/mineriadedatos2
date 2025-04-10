@@ -114,3 +114,44 @@ lillie.test(ee)
 #los datos
 plot(density(scale(ee)))
 curve(dnorm,add=T,col="red")
+#Colinealidad
+##Variance Inflation Factors
+vif(m5)
+sqrt(vif(m5))>2
+
+# Verificar si la varianza es constante (homocedástico) o no (heterocedástico)
+library(lmtest)
+bptest(m5) # H0:  Homocedasticidad
+
+#corrigiendo 
+library(rms)
+model_1 = lm(log(ylab)~s01a_02+s01a_03+aestudio,data=bd1)
+bptest(model_1)
+model_2 = ols(log(ylab)~s01a_02+s01a_03+aestudio ,data=bd1,x=T,y=T)
+bptest(model_2)
+summary(model_1)
+robcov(model_2)
+```
+
+## Predicciones
+
+```{r}
+ypred<-exp(predict(m5))
+bd1$ylab[1]
+ypred[1]
+#base de datos nuevo
+bdp<-data.frame(
+  aestudio="17",
+  area="Urbana",  
+  s01a_02="2. Mujer",
+  s01a_03=20, 
+  tothrs=50,  
+  totper=1,   
+  ynolab=0,   
+  cmasi="Asiste",    
+  s01a_10="1. SOLTERO/A",
+  depto="La Paz" 
+)
+exp(predict(m5,bdp))
+
+
