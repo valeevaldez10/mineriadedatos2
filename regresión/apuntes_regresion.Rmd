@@ -1,0 +1,315 @@
+---
+title: "regresión apuntes"
+author: "Valentina Valdez Vega"
+date: "2025-04-27"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Regresión
+
+$$y=f(x_1,x_2, \ldots)$$
+
+  * $y$ Variable de resultado, dependiente, solo tenemos a una $y$. 
+  * $x_1, x_2, \ldots$, variables de control, independientes.
+  
+ A partir de estas variables:
+ 
+  * ¿Cuál es la relación de $x$ sobre $y$?
+    + Lineal  
+
+$$y_i=\beta_0+\beta_1 x_{i1}+\beta_2 x_{i2}+\ldots+\epsilon_i$$
+$$E[y_i]=E[\hat{\beta}_0+\hat{\beta}_1 x_{i1}+\hat{\beta}_2 x_{i2}+\ldots]$$
+
+$$\frac{dy}{d x_1}= \beta_1$$
+
+> Nota: Diferenciar que la regresión busca establecer relaciones basadas en los datos y no asi un proceso causal.
+
+  + Polinomial
+  + Etc; No lineal,
+    
+  * Conocer la naturaleza de $y$ y las variables $x$
+    + $Y$ es cuanti (real), $X$ mixtas. (Modelos lineales, MCO)
+    + $Y$ es cuanti (discreta >= 0), $X$ cuanti. (Poisson)
+    + $Y$ es cuali nominal binario, $X$ mixtas. (LOGIT/PROBIT)
+    + $Y$ es cuali ordinal, $X$ mixtas. (Logit/probit ordenados)
+
+## Regresión lineal
+
+$$y \in IR$$
+
+$$x_1, x_2, \ldots (mixtas)$$
+
+$$y=\beta_0+\beta_1 x_{1}+\beta_2 x_{2}+\ldots+\epsilon_i$$
+
+$$\epsilon_i\sim N(0, \sigma^2)$$
+Las variables $x$ son independientes mutuamente.
+
+0. Pregunta de investigación, revisión de literatura
+1. Base datos lista para el modelo (Unidad de investigación)
+2. Establecer la relación interés
+3. Definir el modelo de interés
+4. Optimizar el modelo
+5. Validar el modelo
+6. Analizar/Predecir a partir del modelo
+
+Causalidad vs Correlación
+
+
+Paso 0: Qué determina los ingresos de una persona?
+
+### Paso 1: Base de datos
+
+- Encuesta a hogares 2023
+  + Mide todos los componentes del ingreso
+  + Cuenta con información socio económica de las personas
+
+### Paso 2: Establecer la relación de interés.
+
+  * y: Ingreso laboral de la persona
+  * x: Educación, área, sexo, edad, experiencia, horas trabajadas
+    + Priorizar alguna X
+    + Explorativa 
+    + Predictiva
+  * Variables de control: Variables X observables y relacionadas con y. 
+  * Variables de disturbio: Variables X no observables y relacionadas con y. 
+
+Algunos comentarios sobre la calidad de este modelo:
+
+  + Variables omitidas
+  + Se debe especificar la población objetivo de la manera más clara posible.
+  + Se debe identificar la naturaleza de las covariables (X) 
+  + Se debe definir el alcance del modelo; muestral o inferencial (En el caso de encuestas)
+
+PO: **Personas que trabajan, con 25 años o más de edad**
+
+### Paso 3: Definir el modelo a utilizar
+
+$$y=f(x)$$
+
+```{r eval=FALSE, include=FALSE}
+###################
+rm(list=ls())
+library(dplyr)
+library(haven)
+library(labelled)
+library(ggplot2)
+library(GGally)
+load("_data/eh23.RData")
+#Población objetivo
+bd<-eh23p %>% filter(s01a_03>=25 & is.na(ylab)==F)
+#Educación, área, sexo, edad, experiencia, horas trabajadas
+bd<-bd %>% select(ylab, aestudio, area, s01a_02, s01a_03, tothrs,  totper, ynolab, cmasi, s01a_10, depto)
+bd<-bd %>% na.omit()
+bd<-bd %>% to_factor()
+ggpairs(bd[,1:4])
+###################
+#ylab
+summary(bd$ylab)
+ggplot(bd,aes(ylab))+geom_histogram()
+ggplot(bd,aes(ylab))+geom_boxplot()
+ggplot(bd,aes(log(ylab)))+geom_histogram()
+ggplot(bd,aes(log(ylab)))+geom_boxplot()
+# X
+ggplot(bd,aes(aestudio))+geom_bar()
+ggplot(bd,aes(s01a_03))+geom_bar()
+ggplot(bd,aes(area))+geom_bar()
+ggplot(bd,aes(to_factor(s01a_02)))+geom_bar()
+ggpairs(bd[,1:5])
+#modelo
+m1<-lm(ylab~ aestudio,data = bd)
+summary(m1)
+plot(m1)
+
+m2<-lm(log(ylab)~aestudio,data = bd)
+summary(m2)
+plot(m2)
+
+m3<-lm(log(ylab)~ factor(aestudio),data = bd)
+summary(m3)
+plot(m3)
+
+m4<-lm(log(ylab)~ .
+         ,data = bd)
+summary(m4)
+plot(m4)
+```
+
+### Paso 4: Optimizar el modelo
+
+- Tratamiento sobre variables de control
+  + Transformaciones
+  + Definir como factor
+  + Polinomios
+  + Interacciones
+- Tratamiento de datos atípicos
+  + Bonferroni. H0: observación $i$ es 
+- Stepwise: Regresión paso a paso (step)
+- Backward: Regresión hacia atras
+
+```{r eval=FALSE, include=FALSE}
+library(car)
+library(mixlm)
+residualPlots(m4)#HO: NO se requiere X^2
+outlierTest(m4)
+aux<-outlierTest(m4)
+aux<-names(aux$rstudent)
+bd1<-bd %>% slice(- as.numeric(aux))
+bd1<-bd1 %>% mutate(aestudio=as.factor(aestudio))
+influenceIndexPlot(m4, vars="Cook")
+m5<-lm(log(ylab)~., data = bd1)
+m6<-step(m5)
+summary(m6)
+m7<-backward(m5)
+
+##a variables dummy 
+library(fastDummies)
+bd2<-dummy_cols(bd1, remove_first_dummy = T, remove_selected_columns=T)
+md1<-lm(log(ylab)~., data = bd2)
+md2<-step(md1)
+md3<-backward(md1, alpha = 0.05)
+summary(md2)
+summary(md3)
+```
+
+### Paso 5: Validar el modelo
+
+- Residuos
+  + Normalidad
+  + Varianza constante
+- Colinealidad
+  + VIF
+  + Inclusión de interacciones y polinomios
+
+```{r eval=FALSE, include=FALSE}
+#normalidad
+ee<-residuals(m5)
+hist(ee)
+#library(normtest)
+library(nortest)# H0: Normalidad
+ad.test(ee)
+lillie.test(ee)
+
+plot(density(scale(ee)))
+curve(dnorm,add=T,col="red")
+#Colinealidad
+##Variance Inflation Factors
+vif(m5)
+sqrt(vif(m5))>2
+
+# Verificar si la varianza es constante (homocedástico) o no (heterocedástico)
+library(lmtest)
+bptest(m5) # H0:  Homocedasticidad
+
+#corrigiendo 
+library(rms)
+model_1 = lm(log(ylab)~s01a_02+s01a_03+aestudio,data=bd1)
+bptest(model_1)
+model_2 = ols(log(ylab)~s01a_02+s01a_03+aestudio ,data=bd1,x=T,y=T)
+bptest(model_2)
+summary(model_1)
+robcov(model_2)
+```
+
+## Predicciones
+
+```{r eval=FALSE, include=FALSE}
+ypred<-exp(predict(m5))
+bd1$ylab[1]
+ypred[1]
+#base de datos nuevo
+bdp<-data.frame(
+  aestudio="17",
+  area="Urbana",  
+  s01a_02="2. Mujer",
+  s01a_03=20, 
+  tothrs=50,  
+  totper=1,   
+  ynolab=0,   
+  cmasi="Asiste",    
+  s01a_10="1. SOLTERO/A",
+  depto="La Paz" 
+)
+exp(predict(m5,bdp))
+```
+
+## Probit y Logit
+
+Estrategia, llevar valores binarios a valores continuos. Mediante una función de enlace ($F(Y)$).
+
+$$F(Y)=Y'=X \beta +\epsilon$$
+
+Probit:
+
+$$Y=\Phi (X \beta +\epsilon)$$
+$$\phi^{-1}(Y)=X \beta +\epsilon$$
+
+$$Y'=X \beta +\epsilon$$
+
+El enlace $F(Y)=\Phi^{-1}(Y)$, es conocida como probit.
+
+
+Logit:
+
+$$logit(Y)=log\left(\frac{Y}{1-Y}\right)=X\beta+\epsilon$$
+
+$$Y=\frac{e^{X\beta+\epsilon}}{1+e^{X\beta+\epsilon}}$$
+Aplicación en R
+
+$$Pobreza=f(sexo, edad, area,dep,...)$$
+
+```{r eval=FALSE, include=FALSE}
+rm(list=ls())
+library(haven)
+library(dplyr)
+library(margins)# efectos marginales
+library(labelled)
+library(pscl)# Aproximación al ajuste del modelo
+library(car)
+library(mixlm)
+#data
+load("_data/eh23.RData")
+
+bd<-eh23p %>% mutate(pobreza=(p0==1)) %>% 
+  filter(s01a_03>=25)
+
+bd<-bd %>% mutate(aestudio=to_factor(aestudio),
+              rural=(area==2),
+              depto=to_factor(depto),
+              mujer=(s01a_02==2)
+              ) %>% select(pobreza, aestudio, rural, depto, mujer, edad=s01a_03)
+
+table(bd$pobreza)
+
+m1<-glm(pobreza~., 
+        data=bd, family=binomial(link="logit"))
+m2<-glm(pobreza~., 
+        data=bd, family=binomial(link="probit"))
+
+mm1<-margins(m1)
+smm1<-summary(mm1)
+plot(mm1)
+
+mm2<-margins(m2)
+smm2<-summary(mm2)
+plot(mm2)
+
+round(pR2(m1),3)
+round(pR2(m2),3)
+
+outlierTest(m1)
+bd[18708,] %>% View()
+influenceIndexPlot(m1, vars="Cook")
+```
+
+Recomendación:
+
+  - Lo visto en este tema tiene una limitación, es el tratamiento sobre muestras autoponderadas es decir su alcance es limitado.
+  - Para incorporar este tratamiento en encuestas por muestreo se recomienda usar la librería survey y srvyr
+  - Se puede usar los métodos de agrupamiento para mejorar el rendimiento del modelo, muchas veces como una variable de estrato.
+  - Para garantizar que el modelo este libre de multicolinealidad se recomienda usar componentes principales

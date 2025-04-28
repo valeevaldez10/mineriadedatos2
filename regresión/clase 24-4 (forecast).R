@@ -129,9 +129,6 @@ g1<-ggplot(serie, aes(x=periodo, y=valor))+geom_line(color="darkgreen")+theme_mi
 g1
 ggplotly(g1)
 
-s1<-ts(serie$valor, frequency = 1, start = c(1987, 12))
-adf.test(s1)
-
 #con 3 diferencias pasa el test de estacionariedad
 adf.test(diff(s1, differences = 3))
 acf(diff(s1))
@@ -151,7 +148,7 @@ aux<-unique(bd$...1)
 bdaux<-bd %>% rename(detalle=1) %>% filter(detalle==aux[2])
 
 seriem<-bdaux %>% pivot_longer(!detalle, names_to = "periodo", values_to = "valor")
-
+View(seriem)
 mm<-rep(1:12,33)
 aa<-rep(1992:2024, each=12)
 seriem$periodo<-my(paste0(mm,"-",aa))[-396]
