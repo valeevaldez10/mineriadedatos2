@@ -7,7 +7,7 @@ library(pscl)# Aproximación al ajuste del modelo
 library(car)
 library(mixlm)
 #data
-load("_data/eh23.RData")
+load("datasets/eh23.RData")
 
 bd<-eh23p %>% mutate(pobreza=(p0==1)) %>% 
   filter(s01a_03>=25)
@@ -39,3 +39,4 @@ round(pR2(m2),3)
 outlierTest(m1)
 bd[18708,] %>% View()
 influenceIndexPlot(m1, vars="Cook")
+residualPlot(m1)

@@ -90,7 +90,7 @@ summary(m7)
 #sucede el mismo problema
 
 #lo mejor es transformar a dummies por nuestra cuenta
-install.packages("fastDummies")
+#install.packages("fastDummies")
 library(fastDummies)
 bd2<-dummy_cols(bd1,remove_first_dummy=T,remove_selected_columns = T)
 bd2
@@ -104,7 +104,7 @@ summary(md3)
 ########### paso 5
 ee<-residuals(m5)
 hist(ee)
-install.packages("nortest")
+#install.packages("nortest")
 library(nortest)  #H0: Existe normalidad
 ad.test(ee)
 lillie.test(ee)

@@ -36,6 +36,18 @@ plot(s1)
 acf(s1,60)
 pacf(s1,60)
 
+d12s1=diff(s1,12)
+plot(d12s1)
+acf(d12s1,60)
+pacf(d12s1,60)
+auto.arima(s1)
+
+#ARIMA(0,0,0)(0,1,1)
+#ARIMA(1,0,0)(0,1,1)
+#ARIMA(0,0,1)(0,1,1)
+#ARIMA(0,0,0)(1,1,1)
+
+
 #Trabajando con Quinua (seriem1)
 
 bdaux1<-bd %>% rename(detalle=1) %>% filter(detalle==aux[7])
@@ -47,3 +59,39 @@ head(seriem1)
 aa<-rep(2014:2024, each=12)
 seriem1$periodo<-my(paste0(mm,"-",aa))[-132]
 head(seriem1)
+
+st1<-ts(seriem1$valor,start = c(2014),freq=12)
+plot(st1)
+acf(st1,60)
+pacf(st1,60)
+
+dst1<-diff(st1)
+plot(dst1)
+acf(dst1,60)
+pacf(dst1,60)
+
+#ARIMA(1,1,1)
+
+m1<-arima(st1,order=c(1,1,1))
+summary(m1) #AIC = 473.54
+tsdiag(m1) 
+checkresiduals(m1) #H0: Residuos no autocorrelacionados
+#se rechaza H0 al 10% de significancia
+autoplot(m1)
+
+#ARIMA(1,1,0)
+m2<-arima(st1,order=c(1,1,0))
+summary(m2) #AIC = 472.04
+tsdiag(m2) 
+checkresiduals(m2) #H0: Residuos no autocorrelacionados
+#se rechaza H0 al 10% de significancia
+autoplot(m2)
+
+
+#ARIMA(0,1,1)
+m3<-arima(st1,order=c(0,1,1))
+summary(m3) #AIC = 473.54
+tsdiag(m3) 
+checkresiduals(m3) #H0: Residuos no autocorrelacionados
+#se rechaza H0 al 10% de significancia
+autoplot(m3)
