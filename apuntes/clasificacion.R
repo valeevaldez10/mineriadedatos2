@@ -227,6 +227,8 @@ px2
 
 #CARET
 rm(list=ls())
+install.packages("rtools")
+install.packages("future")
 library(dplyr)
 install.packages("C50")
 library(C50)# árbol de decisión
@@ -234,6 +236,7 @@ install.packages("rpart")
 library(rpart) # cart
 install.packages("rpart.plot")
 library(rpart.plot)# figura cart
+install.packages("caret")
 library(caret) # matrix conf
 #######################################
 bd<-iris
