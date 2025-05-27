@@ -282,6 +282,7 @@ summary(m3)
 
 
 rm(list = ls())
+install.packages("neuralnet")
 library(neuralnet)
 bd<-iris
 ##########
@@ -296,11 +297,17 @@ aux<-sample(c(1,2),nrow(bd),replace = T, prob = c(0.7,0.3))
 bdtrain<-bd[aux==1,]
 bdtest<-bd[aux==2,]
 #modelo
+
+#Tenermos tres capas de salida, un nodo en la capa oculta
 m1<-neuralnet(setosa+versicolor+virginica~Sepal.Length+Sepal.Width+Petal.Length+Petal.Width, data = bdtrain, hidden = 1)
 
+#Tenermos tres capas de salida, dos nodos en la capa oculta
 m2<-neuralnet(setosa+versicolor+virginica~Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,data = bdtrain,hidden = 2)
 
+#Tenermos tres capas de salida, tres nodos en la capa oculta
 m3<-neuralnet(setosa+versicolor+virginica~Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,data = bdtrain,hidden = 3)
+
+#Tenermos tres capas de salida, cuatro nodos en la capa oculta
 m4<-neuralnet(setosa+versicolor+virginica~Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,data = bdtrain,hidden = 4)
 
 summary(m1)
@@ -309,16 +316,24 @@ plot(m2)
 plot(m3)
 plot(m4)
 
-gwplot(m3, selected.response = 2, selected.covariate = 3)
+#nos muestra como está la respuesta del nivel 2 en relación
+#a la tercera covariable (petal.length)
 
-rr<-compute(m3,bdtest)
+#muestra sensibilidad de la covariable en la red neuronal
+gwplot(m4, selected.response = 2, 
+       selected.covariate = 3)
 
+rr<-compute(m4,bdtest)
+rr #es como una predicción con la red neuronal
 aux<-c("setosa","versicolor","virginica")[apply(rr$net.result,1,which.max)]
 
+install.packages("caret")
 library(caret)
 t1<-table(bdtest$Species,aux)
 t1
 confusionMatrix(t1)
+#la red neuronal tiene un porcentaje de precisión del 95%
+
 #######################
 rm(list = ls())
 library(nnet)
